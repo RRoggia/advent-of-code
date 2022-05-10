@@ -1,0 +1,27 @@
+ <!DOCTYPE html>
+<html>
+<head>
+	<title>day ten</title>
+</head>
+<body>
+<script src="./inputs.js"></script>
+<script src="./InstructionQueue.js"></script>
+<script src="./Instruction.js"></script>
+<script src="./Bot.js"></script>
+<script src="./Factory.js"></script>
+<script>
+var queue = new InstructionQueue(instructions);
+
+var factory = new Factory();
+var bots = factory.assignChipsToBots(queue.assignments);
+
+factory.addInstructions(queue.actions);
+
+while(factory.hasNextInstruction()){
+	var nextAction = factory.getNextAction();
+	factory.executeNextAction(nextAction);
+}
+
+</script>
+</body>
+</html>
