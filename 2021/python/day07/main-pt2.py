@@ -4,15 +4,9 @@ crab_positions = crab_positions.split( ',' )
 
 sumFatorialResult = {}
 def sumFatorial( number ):
-  cacheResult = sumFatorialResult.get( number, 0 )
-  if cacheResult > 0:
-    return cacheResult
+  return number * ( number + 1 ) / 2
 
-  total = 0
-  for i in range( 1, number + 1 ):
-    total += i
-  sumFatorialResult[ number ] = total
-  return total
+
 
 lower_fuel = 999999999999
 
