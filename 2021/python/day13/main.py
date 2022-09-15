@@ -43,7 +43,3 @@ for x in grid:
     total += len(grid[x])
 
 print (total)
-
-
-# if y i j = y*2 -1, fold (y *2 -1) - i
-

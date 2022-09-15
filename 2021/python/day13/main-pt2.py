@@ -12,32 +12,51 @@ def parseInput( lines ):
             continue
         
         x, y  = line.split(",")
-        if x not in grid:
-            grid[x] = set()        
+        if y not in grid:
+            grid[y] = set()        
         
-        grid[x].add(y)   
+        grid[y].add(x)   
     return grid, foldInstructions
+
+def invertGridAxis( grid ):
+    inverted = {}
+    for x in grid:
+        for y in grid[x]:
+            if y not in inverted:
+                inverted[y] = set()
+            inverted[y].add(x)
+    return inverted
 
 grid, foldInstructions = parseInput( lines )
 
-print( foldInstructions)
+lastFold = 'y'
 for fold in foldInstructions:
+    position = int(fold[1])
+    lastPosition = (position * 2 )
 
-    times = int(fold[1])
-    last = (times * 2 )
-    for i in range(times):
+    if lastFold != fold[0]:
+        grid = invertGridAxis(grid)
+
+    for i in range(position):
         key = str(i)
-        lastKey = str(last - i)
+        lastKey = str(lastPosition - i)
 
-        if fold[0] == "x":
-            if key not in grid and lastKey not in grid:
-                continue
-            elif key not in grid:
-                grid[key] = set()
-            elif lastKey not in grid: 
-                grid[lastKey] = set()
+        if lastKey not in grid or key not in grid and lastKey not in grid:
+            continue
+        elif key not in grid:
+            grid[key] = set()
 
-            grid[key] = grid[key].union(grid[lastKey])
+        grid[key] = grid[key].union(grid.pop(lastKey))
 
+    lastFold = fold[0]
 
-print (total)
+for j in range(6):
+    values = grid.get(str(j), {})
+    row = ''
+    for k in range(40):
+        if str(k) in values:
+            row += '#'
+        else:
+            row +=" "
+    
+    print(row)
