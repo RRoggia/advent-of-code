@@ -10,7 +10,6 @@ for row in range(1, len(lines)-1):
   for column in range(1, len(lines[row])-1):
     results = []
     count=0
-    print("esse", lines[row][column])
     for upRow in reversed(range(0, row)):
       count+=1
       if lines[upRow][column] >= lines[row][column]:
@@ -37,9 +36,7 @@ for row in range(1, len(lines)-1):
       if lines[row][rightColumn] >= lines[row][column]:
         break
     results.append(count)
-    print(results)
     total = reduce( mul, results)
-    print(total)
     if total > highest:
       highest=total
 
