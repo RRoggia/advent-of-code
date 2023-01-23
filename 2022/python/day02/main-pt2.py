@@ -29,14 +29,4 @@ shapeValue = {
     "B": 2,  # paper
     "C": 3  # scissor
 }
-
-total = 0
-for round in rounds:
-    opponent, outcome = round.split()
-
-    if outcome == "Y":
-        total += (outcomeValue[outcome] + shapeValue[opponent])
-    else:
-        total += (outcomeValue[outcome] + shapeValue[combinations[outcome][opponent]])
-
-print(total)
+print(sum([ outcomeValue[outcome] + (shapeValue[opponent] if outcome == "Y" else shapeValue[combinations[outcome][opponent]]) for opponent, outcome in [round.split() for round in rounds]]))

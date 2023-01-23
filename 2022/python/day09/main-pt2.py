@@ -1,17 +1,13 @@
 inputFile = open("day9.txt", "r")
 lines = inputFile.read().split('\n')
 
-head = {
+ropeBody = [ {
   "x":0,
   "y":0
-}
+} for _ in range(10)]
 
-tail = {
-  "x":0,
-  "y":0,
-}
 results = set()
-results.add(str(tail))
+results.add(str(ropeBody[9]))
 
 axis = {
   "U": "x",
@@ -32,11 +28,14 @@ operation = {
   "L": -1
 }
 
+moves =0
 for line in lines:
   direction, quantity = line.split()
   quantity = int(quantity)
   
   for i in range(quantity):
+    first = ropeBody[0]
+    second = ropeBody[0]
     head[axis[direction]] += operation[direction]
 
     adjacent = []

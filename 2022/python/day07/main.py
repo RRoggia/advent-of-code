@@ -60,8 +60,5 @@ def evaluateThree(current, calculated):
 calculated = {}
 evaluateThree(instructions[0]["moveTo"], calculated)
 
-total = 0
-for i in calculated.values():
-    total += i if i <= 100000 else 0
 
-print(calculated)
+print(sum([ i if i <= 100000 else 0 for i in calculated.values()]))
