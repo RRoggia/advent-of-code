@@ -23,13 +23,15 @@
   }
   createTree(initialState, myFloor, queue,  0)
 
+
 function createTree(state, currentFloor, queue, count){
+  console.log("my state is", createStateKey(state, currentFloor), "and counting", count, ".")
+
   if(Object.values(state).filter(f => f===4).length === 4) {
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-    console.log(count)
+    console.log(">>>>>>>>>>> Latest state with:", count)
     return
   }
-  console.log("my state is", createStateKey(state, currentFloor), "and counting", count, ".")
+
   let resources = Object.entries(state)
                     .filter(([resource, floor]) => floor === currentFloor)
                     .map(([r, f]) => r)
@@ -39,15 +41,24 @@ function createTree(state, currentFloor, queue, count){
 
   for(let i=0; i < resources.length; i++){
     const r = resources[i]
-    console.log("processing", r)
+    const canGoUp = currentFloor + 1 < 5
+    const canGoDown = currentFloor -1 > 0
 
-    addValidUpperStates(r, state, currentFloor, validStatesUp)
-    addValidLowerStates(r, state, currentFloor, validStatesDown)
+    console.log("Process single moves")
+    console.log("might have upper floor states")
+    addValidStates(r, state, currentFloor, currentFloor + 1, validStatesUp, canGoUp)
 
+    console.log("might have lower floor")
+    addValidStates(r, state, currentFloor, currentFloor - 1, validStatesDown,  canGoDown)
+    
+    console.log("Process double moves")
     for(let j = i+1; j < resources.length; j++){
       const r2 = resources[j] 
-      addValidUpperStatesMovingTwo(r, r2, state, currentFloor, validStatesUp)
-      addValidLowerStatesMovingTwo(r, r2, state, currentFloor, validStatesDown)
+      console.log("might have upper floor states")
+      addValidStatesMovingTwo(r, r2, state, currentFloor, currentFloor + 1, validStatesUp, canGoUp)
+
+      console.log("might have lower floor")
+      addValidStatesMovingTwo(r, r2, state, currentFloor, currentFloor - 1, validStatesDown, canGoDown)
       }
     }
 
@@ -91,7 +102,6 @@ function canMove(state, resource ) {
 }
 
 function isValidState(state) {
-  //console.log("validate state", state)
  return isValidFloor(Object.entries(state)
     .filter(([r,f]) => f === 1)
     .map(([r,f]) => r)) &&
@@ -107,22 +117,17 @@ function isValidState(state) {
 }
 
 function isValidFloor(floorResources){
-  //console.log(floorResources)
   const pool = {}
   
   for(let i =0; i < floorResources.length; i++){
     const resource = floorResources[i]
     const key = isGenerator(resource) ? getCounterPart(resource) : resource
-    //console.log("key", key)
     if(key in pool){
       delete pool[key]
-      //console.log("found, delte it", key)
     }else{
       pool[key] = resource
-      //console.log("missing, add", key)
     }
  } 
-  //console.log(pool)
   let hasG = false
   let hasM = false
   
@@ -133,7 +138,6 @@ function isValidFloor(floorResources){
       hasM = true
     }
   }
-  //console.log("isvalid floor", !(hasG && hasM))
   return !(hasG && hasM)
 }
 
@@ -142,73 +146,42 @@ function createStateKey(state, floor) {
   return floor.toString() + JSON.stringify(state)
 }
 
-function addValidUpperStates(r, state, currentFloor, validStates) {
-  if( currentFloor + 1 < 5) {
-    console.log("might have upper floor")
-    const newState = {...state}
-    newState[r] = currentFloor + 1 
-    const newStateKey = createStateKey(newState, currentFloor + 1)
-    console.log(newStateKey)
-    console.log("not in queue", !queue[newStateKey])
-    console.log("isValid", isValidState(newState))
-    if(!queue[newStateKey] && isValidState(newState)) {
-        queue[newStateKey] = true
-        console.log("add new possible state", newStateKey, " moving up", r)
-        validStates.push(newState)
-    }
+function addValidStates(r, state, currentFloor, nextFloor,  validStates, canGoUpOrDown) {
+  if(!canGoUpOrDown) {
+    return
+  }
+
+  const newState = {...state}
+  newState[r] = nextFloor 
+  const newStateKey = createStateKey(newState, nextFloor) 
+  console.log(newStateKey)
+  console.log("not in queue", !queue[newStateKey])
+  console.log("isValid", isValidState(newState))
+  if(!queue[newStateKey] && isValidState(newState)) {
+    queue[newStateKey] = true
+    console.log("add new possible state", newStateKey, " moving", r)
+    validStates.push(newState)
   }
 }
 
-function addValidLowerStates(r, state, currentFloor, validStates) {
-  if(currentFloor - 1 > 0) {
-    console.log("might have lower floor")
-    const newState = {...state}
-    newState[r] = currentFloor - 1 
-    const newStateKey = createStateKey(newState, currentFloor - 1)
-    console.log(newStateKey)
-    console.log("not in queue", !queue[newStateKey])
-    console.log("isValid", isValidState(newState))
-    if(!queue[newStateKey] && isValidState(newState)) {
-      queue[newStateKey] = true
-      console.log("add new possible state", newStateKey, " moving down", r)
-      validStates.push(newState)
-    }
+function addValidStatesMovingTwo(r, r2, state, currentFloor, nextFloor, validStates, canGoUpOrDown) {
+  if(!canGoUpOrDown) {
+    return
+  }
+  const newState = {...state}
+  newState[r] = nextFloor
+  newState[r2] = nextFloor
+  const newStateKey = createStateKey(newState, nextFloor)
+  console.log(newStateKey)
+  console.log("not in queue", !queue[newStateKey])
+  console.log("isValid", isValidState(newState))
+  if(!queue[newStateKey] && isValidState(newState)) {
+    queue[newStateKey] = true
+    console.log("add new possible state", newStateKey, " moving ", r, r2)
+    validStates.push(newState)
   }
 }
 
-function addValidUpperStatesMovingTwo(r, r2, state, currentFloor, validStates) {
-  if( currentFloor + 1 < 5) {
-    const newState = {...state}
-    newState[r] = currentFloor + 1 
-    newState[r2] = currentFloor + 1
-    const newStateKey = createStateKey(newState, currentFloor + 1)
-    console.log(newStateKey)
-    console.log("not in queue", !queue[newStateKey])
-    console.log("isValid", isValidState(newState))
-    if(!queue[newStateKey] && isValidState(newState)) {
-      queue[newStateKey] = true
-      console.log("add new possible state", newStateKey, " moving up", r, r2)
-      validStates.push(newState)
-    }
-  }
-}
-
-function addValidLowerStatesMovingTwo(r, r2, state, currentFloor, validStates) {
-  if(currentFloor - 1 > 0) {
-    const newState = {...state}
-    newState[r] = currentFloor - 1 
-    newState[r2] = currentFloor - 1 
-    const newStateKey = createStateKey(newState, currentFloor - 1)
-    console.log(newStateKey)
-    console.log("not in queue", !queue[newStateKey])
-    console.log("isValid", isValidState(newState))
-    if(!queue[newStateKey] && isValidState(newState)) {
-      queue[newStateKey] = true
-      console.log("add new possible state", newStateKey, " moving down", r, r2)
-      validStates.push(newState)
-    }
-  }
-}
 
 // generator
 // if alone
