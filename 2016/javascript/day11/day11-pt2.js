@@ -14,7 +14,11 @@ const initialState = {
   "RUG":1,
   "RUM":1,
   "COG":1,
-  "COM":1
+  "COM":1,
+  "ELG":1,
+  "ELM":1,
+  "DIG":1,
+  "DIM":1
 }
 
 let myFloor = 1
@@ -40,7 +44,7 @@ function createTree(queue, initialState){
 
 //    console.log("my state is", createStateKey(state, currentFloor), "and counting", count, ".")
 
-    if(Object.values(state).filter(f => f===4).length === 10) {
+    if(Object.values(state).filter(f => f===4).length === 14) {
       console.log(">>>>>>>>>>> Latest state with:", count)
       return
     }
