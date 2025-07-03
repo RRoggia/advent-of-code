@@ -2,74 +2,59 @@ import { readFileSync } from 'node:fs'
 
 const rows = String(readFileSync("./input.txt")).split("\n")
 
-let total = 0
+const findLeft = (i, arr) => {
+  let ascendent = []
+  while (i >= 0 && !isNaN(arr[i])) {
+    ascendent.push(arr[i])
+    i--
+  }
+  return ascendent.reverse().join("")
+}
+
+const findRight = (i, arr) => {
+  let ascendent = ""
+  while (i < arr.length && !isNaN(arr[i])) {
+    ascendent += arr[i]
+    i++
+  }
+  return ascendent
+}
+
+const findNumbers = (i, arr) => {
+  const nums = []
+  const left = findLeft(i - 1, arr)
+  const right = findRight(i + 1, arr)
+
+  if (isNaN(arr[i])) {
+    nums.push(left, right)
+  } else {
+    nums.push(left + arr[i] + right)
+  }
+  return nums
+    .filter(n => "" !== n)
+    .map(n => Number(n))
+}
+
+let nums = []
 for (let i = 0; i < rows.length; i++) {
   const row = rows[i]
   const isFirstRow = i === 0
   const isLastRow = i + 1 === rows.length
 
-  let value = ""
-  let hasAdjacent = false
   for (let j = 0; j < row.length; j++) {
-    const isFirstChar = j === 0
-    const isLastChar = j + 1 === row.length
-    let char = row[j]
-    if (!isNaN(char)) {
-      value += char
-    } else {
-      hasAdjacent = false
-      value = ""
-    }
-
-    if (value.length === 0) {
+    if (!isNaN(row[j]) || "." === row[j]) {
       continue
     }
 
-    if (!hasAdjacent) {
-      if (value.length === 1) { //new number
-        if (!isFirstChar) {
-          const left = rows[i][j - 1]
-          hasAdjacent = hasAdjacent || isNaN(left) && left !== "."
-          if (!isFirstRow) {
-            const upperLeft = rows[i - 1][j - 1]
-            hasAdjacent = hasAdjacent || isNaN(upperLeft) && upperLeft !== "."
-          }
-          if (!isLastRow) {
-            const lowerLeft = rows[i + 1][j - 1]
-            hasAdjacent = hasAdjacent || isNaN(lowerLeft) && lowerLeft !== "."
-          }
-        }
-      }
-
-      if (!isFirstRow) {
-        const upper = rows[i - 1][j]
-        hasAdjacent = hasAdjacent || isNaN(upper) && upper !== "."
-      }
-      if (!isLastRow) {
-        const lower = rows[i + 1][j]
-        hasAdjacent = hasAdjacent || isNaN(lower) && lower !== "."
-      }
-
-      if (!isLastChar && isNaN(row[j + 1])) {
-        const right = rows[i][j + 1]
-        hasAdjacent = hasAdjacent || isNaN(right) && right !== "."
-        if (!isFirstRow) {
-          const upperRight = rows[i - 1][j + 1]
-          hasAdjacent = hasAdjacent || isNaN(upperRight) && upperRight !== "."
-        }
-        if (!isLastRow) {
-          const lowerRight = rows[i + 1][j + 1]
-          hasAdjacent = hasAdjacent || isNaN(lowerRight) && lowerRight !== "."
-        }
-      }
+    if (!isFirstRow) {
+      nums.push(...findNumbers(j, rows[i - 1]))
     }
-    // console.log(value, hasAdjacent)
 
+    nums.push(...findNumbers(j, row))
 
-    if (hasAdjacent && (j + 1 === row.length || isNaN(row[j + 1]))) {
-      total += Number(value)
+    if (!isLastRow) {
+      nums.push(...findNumbers(j, rows[i + 1]))
     }
   }
-
 }
-console.log(total)
+console.log(nums.reduce((acc, a ) => acc + a, 0))
